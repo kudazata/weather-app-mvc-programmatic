@@ -41,13 +41,13 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
         
         self.view.backgroundColor = UIColor(rgb: 0x47AB2F)
        
-       
         self.view.addSubview(imageView)
         self.view.addSubview(tableView)
         tableView.backgroundColor = .clear
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.allowsSelection = false
         
         let imageViewTopConstraint = NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0)
         let imageViewLeadingConstraint = NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0)
@@ -123,6 +123,9 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
             
             let condition = CurrentCondition(rawValue: currentWeather.weather[0].main)
             currentConditionLabel.text = condition?.displayName
+            self.view.backgroundColor = UIColor(rgb: condition?.backgroundColorHexValue ?? 0x47AB2F)
+            self.imageView.image = UIImage(named: condition?.backgroundImageName ?? "forest_sunny")
+                
             self.tableView.reloadData()
         }
     }
