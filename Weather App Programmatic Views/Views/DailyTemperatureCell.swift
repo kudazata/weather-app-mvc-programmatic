@@ -23,14 +23,13 @@ class DailyTemperatureCell: UITableViewCell {
     }
     
     private func setupViews() {
-        temperatureLabel = UILabel()
-        temperatureLabel.textColor = .white
-        dayLabel = UILabel()
-        dayLabel.textColor = .white
         
+        temperatureLabel.textColor = .white
         temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
+        dayLabel.textColor = .white
         dayLabel.translatesAutoresizingMaskIntoConstraints = false
         conditionImageView.translatesAutoresizingMaskIntoConstraints = false
+        self.backgroundColor = .clear
         
         self.addSubview(temperatureLabel)
         self.addSubview(dayLabel)
@@ -43,15 +42,23 @@ class DailyTemperatureCell: UITableViewCell {
         
         let conditionImageCentreYConstraint = NSLayoutConstraint(item: conditionImageView, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0)
         let conditionImageCentreXConstraint = NSLayoutConstraint(item: conditionImageView, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0)
-        
-        self.addConstraints([temperatureLabelConstraint, temperatureLabelCentreYConstraint, dayLabelConstraint, dayLabelCentreYConstraint, conditionImageCentreYConstraint, conditionImageCentreXConstraint])
-        
         let conditionImageHeightConstraint = NSLayoutConstraint(item: conditionImageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 30)
         let conditionImageWidthConstraint = NSLayoutConstraint(item: conditionImageView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 30)
         
-        conditionImageView.addConstraints([conditionImageHeightConstraint, conditionImageWidthConstraint])
+        self.addConstraints([
+            temperatureLabelConstraint,
+            temperatureLabelCentreYConstraint,
+            dayLabelConstraint,
+            dayLabelCentreYConstraint,
+            conditionImageCentreYConstraint,
+            conditionImageCentreXConstraint
+        ])
         
-        self.backgroundColor = .clear
+        conditionImageView.addConstraints([
+            conditionImageHeightConstraint,
+            conditionImageWidthConstraint
+        ])
+        
     }
     
     func configureCell(forecastWeather: ForecastWeatherItem) {

@@ -19,7 +19,6 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
     var location: CLLocationCoordinate2D!
     var didFetchLocation = false
     let locationManager = CLLocationManager()
-    
     private var forecastWeatherItems = [ForecastWeatherItem]()
     private var currentWeather: CurrentWeatherResponse?
     
@@ -32,88 +31,95 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         locationManager.delegate = self
         self.locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
     }
     
+    //MARK: - Views
     private func setupViews() {
         
         self.view.backgroundColor = UIColor(rgb: 0x47AB2F)
+        
+        cityNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        cityNameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        cityNameLabel.textColor = .white
+        cityNameLabel.text = "--"
+        
+        currentTempLabel.translatesAutoresizingMaskIntoConstraints = false
+        currentTempLabel.font = .systemFont(ofSize: 45, weight: .bold)
+        currentTempLabel.textColor = .white
+        currentTempLabel.text = "--°"
+        
+        currentConditionLabel.translatesAutoresizingMaskIntoConstraints = false
+        currentConditionLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        currentConditionLabel.textColor = .white
+        currentConditionLabel.text = "--"
+        
+        imageView.image = UIImage(named: "forest_sunny")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        tableView.backgroundColor = .clear
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.allowsSelection = false
+        tableView.register(DailyTemperatureCell.self, forCellReuseIdentifier: "weatherCell")
+        tableView.dataSource = self
+        tableView.delegate = self
        
         self.view.addSubview(imageView)
         self.view.addSubview(tableView)
-        tableView.backgroundColor = .clear
+        self.view.addSubview(cityNameLabel)
+        self.view.addSubview(currentTempLabel)
+        self.view.addSubview(currentConditionLabel)
         
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.allowsSelection = false
         
+        //MARK: - ImageView constraints
         let imageViewTopConstraint = NSLayoutConstraint(item: imageView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0)
         let imageViewLeadingConstraint = NSLayoutConstraint(item: imageView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0)
         let imageViewTrailingConstraint = NSLayoutConstraint(item: imageView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0)
         let imageViewHeightConstraint = NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 285)
         
-        self.view.addConstraints([imageViewTopConstraint, imageViewLeadingConstraint, imageViewTrailingConstraint])
-        imageView.addConstraint(imageViewHeightConstraint)
         
-        let bottomConstraint = NSLayoutConstraint(item: tableView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0)
-        let topConstraint = NSLayoutConstraint(item: tableView, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1, constant: 10)
-        let leftConstraint = NSLayoutConstraint(item: tableView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0)
-        let rightConstraint = NSLayoutConstraint(item: tableView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0)
+        //MARK: - TableView constraints
+        let tableViewBottomConstraint = NSLayoutConstraint(item: tableView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1, constant: 0)
+        let tableViewTopConstraint = NSLayoutConstraint(item: tableView, attribute: .top, relatedBy: .equal, toItem: imageView, attribute: .bottom, multiplier: 1, constant: 10)
+        let tableViewLeftConstraint = NSLayoutConstraint(item: tableView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0)
+        let tableViewRightConstraint = NSLayoutConstraint(item: tableView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0)
         
-        self.view.addConstraints([bottomConstraint, topConstraint, leftConstraint, rightConstraint])
         
-        cityNameLabel = UILabel()
-        cityNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        cityNameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
-        cityNameLabel.textColor = .white
-        cityNameLabel.text = "--"
-        self.view.addSubview(cityNameLabel)
-        
+        //MARK: - CityNameLabel constraints
         let cityLabelTopConstraint = NSLayoutConstraint(item: cityNameLabel, attribute: .top, relatedBy: .equal, toItem: view, attribute: .topMargin, multiplier: 1, constant: 20)
         let cityLabelCentreXConstraint = NSLayoutConstraint(item: cityNameLabel, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0)
-        self.view.addConstraints([cityLabelTopConstraint, cityLabelCentreXConstraint])
+        self.view.addConstraints([])
         
-        
-        currentTempLabel = UILabel()
-        currentTempLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentTempLabel.font = .systemFont(ofSize: 45, weight: .bold)
-        currentTempLabel.textColor = .white
-        currentTempLabel.text = "--°"
-        self.view.addSubview(currentTempLabel)
         
         let currentTempLabelTopConstraint = NSLayoutConstraint(item: currentTempLabel, attribute: .top, relatedBy: .equal, toItem: cityNameLabel, attribute: .bottom, multiplier: 1, constant: 0)
         let currentTempLabelCentreXConstraint = NSLayoutConstraint(item: currentTempLabel, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0)
         self.view.addConstraints([currentTempLabelTopConstraint, currentTempLabelCentreXConstraint])
         
-        currentConditionLabel = UILabel()
-        currentConditionLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentConditionLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        currentConditionLabel.textColor = .white
-        currentConditionLabel.text = "--"
-        self.view.addSubview(currentConditionLabel)
         
+        //MARK: - currentConditionLabel constraints
         let currentConditionLabelTopConstraint = NSLayoutConstraint(item: currentConditionLabel, attribute: .top, relatedBy: .equal, toItem: currentTempLabel, attribute: .bottom, multiplier: 1, constant: 0)
         let currentConditionLabelCentreXConstraint = NSLayoutConstraint(item: currentConditionLabel, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0)
-        self.view.addConstraints([currentConditionLabelTopConstraint, currentConditionLabelCentreXConstraint])
         
-        tableView.register(DailyTemperatureCell.self, forCellReuseIdentifier: "weatherCell")
-        tableView.dataSource = self
-        tableView.delegate = self
-        imageView.image = UIImage(named: "forest_sunny")
         
-    }
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return forecastWeatherItems.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "weatherCell") as! DailyTemperatureCell
-        cell.configureCell(forecastWeather: forecastWeatherItems[indexPath.row])
-        return cell
+        //MARK: - Add all constraints
+        self.view.addConstraints([
+            currentConditionLabelTopConstraint,
+            currentConditionLabelCentreXConstraint,
+            imageViewTopConstraint,
+            imageViewLeadingConstraint,
+            imageViewTrailingConstraint,
+            tableViewBottomConstraint,
+            tableViewTopConstraint,
+            tableViewLeftConstraint,
+            tableViewRightConstraint,
+            cityLabelTopConstraint,
+            cityLabelCentreXConstraint
+        ])
+        imageView.addConstraint(imageViewHeightConstraint)
+        
     }
     
     private func updateWeatherInfo() {
@@ -129,6 +135,19 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
             self.tableView.reloadData()
         }
     }
+
+    
+    
+    //MARK: - TableView functions
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return forecastWeatherItems.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "weatherCell") as! DailyTemperatureCell
+        cell.configureCell(forecastWeather: forecastWeatherItems[indexPath.row])
+        return cell
+    }
     
     
     //MARK: - NETWORK FUNCTIONS
@@ -139,7 +158,6 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
         getForecastWeatherByCoordinates(latitude: latitude, longitude: latitude)
         
         self.dispatchGroup.notify(queue: .main) {
-            dump(self.currentWeather)
             self.updateWeatherInfo()
         }
     }
@@ -177,6 +195,8 @@ class MainWeatherViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    
+    //MARK: - Other functions
     private func createIndexSet(numberOfItems: Int) -> IndexSet {
         let step = (numberOfItems) / 5
         var value = step
